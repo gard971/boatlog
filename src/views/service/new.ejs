@@ -1,0 +1,27 @@
+<%- include("../partials/head", { title: "Nytt servicepunkt" }) %>
+
+<section class="card">
+  <div class="row">
+    <h1>Nytt servicepunkt</h1>
+    <a class="button" href="/service">Tilbake</a>
+  </div>
+
+  <form method="post" action="/service/plans">
+    <label>Tittel</label>
+    <input name="title" required placeholder="Oljeservice" />
+
+    <label>Beskrivelse (valgfritt)</label>
+    <textarea name="description" rows="3"></textarea>
+
+    <label>Intervall (dager)</label>
+    <input name="intervalDays" type="number" min="1" required placeholder="f.eks 180" />
+
+    <label>Første forfall (valgfritt)</label>
+    <input name="firstDueAt" type="date" />
+    <p class="muted">Hvis tom: settes automatisk til i dag + intervall.</p>
+
+    <button class="button primary" type="submit">Opprett</button>
+  </form>
+</section>
+
+<%- include("../partials/foot") %>

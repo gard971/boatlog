@@ -37,16 +37,18 @@ model Issue {
 }
 
 model Todo {
-  id          String        @id @default(cuid())
-  title       String
-  description String?
-  status      TodoStatus    @default(TODO)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  completedAt DateTime?
-  intervalDays Int?    
-  nextDueAt    DateTime? 
+  id            String        @id @default(cuid())
+  title         String
+  description   String?
+  status        TodoStatus    @default(TODO)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  completedAt   DateTime?
+  servicePlanId String?
+  dueAt         DateTime?
+  cycleNumber   Int? 
 
+  servicePlan ServicePlan? @relation(fields: [servicePlanId], references: [id], onDelete: SetNull) 
 
   issues      IssueTodo[]
   attachments Attachment[]
@@ -109,4 +111,15 @@ model PartUsage {
   @@index([partId])
   @@index([todoId])
   @@unique([partId, todoId]) // en part per todo (med quantity)
+}
+model ServicePlan {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  intervalDays Int
+  startDueAt   DateTime? // valgfritt: første forfall hvis du vil styre det
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  todos        Todo[]
 }

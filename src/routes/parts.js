@@ -60,4 +60,19 @@ router.post("/use/remove", async (req, res) => {
   res.redirect(`/todos/${todoId}`);
 });
 
+router.post("/:id/delete", async (req, res) => {
+  const { id } = req.params;
+
+  const usageCount = await prisma.partUsage.count({ where: { partId: id } });
+  if (usageCount > 0) {
+    return res
+      .status(400)
+      .send("Delen er i bruk på en eller flere oppgaver. Fjern den fra oppgavene før du sletter.");
+  }
+
+  await prisma.part.delete({ where: { id } });
+  res.redirect("/parts");
+});
+
+
 module.exports = router;

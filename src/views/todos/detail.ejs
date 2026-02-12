@@ -67,6 +67,7 @@
     <input type="hidden" name="todoId" value="<%= todo.id %>" />
     <label>Velg del</label>
     <select name="partId" required>
+      <option value="" disabled selected>-- Velg del --</option>
       <% allParts.forEach(p => { %>
         <option value="<%= p.id %>"><%= p.name %> <%= p.sku ? "(" + p.sku + ")" : "" %></option>
       <% }) %>

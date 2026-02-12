@@ -17,15 +17,14 @@ router.get("/new", (req, res) => {
 
 router.post("/", async (req, res) => {
   const { title, description } = req.body;
-  const intervalDays = req.body.intervalDays ? Number(req.body.intervalDays) : null;
 
-const todo = await prisma.todo.create({
-  data: {
-    title,
-    description,
-    intervalDays: intervalDays && intervalDays > 0 ? intervalDays : null,
-  },
-});
+  const todo = await prisma.todo.create({
+    data: {
+      title,
+      description: description || null,
+    },
+  });
+
   res.redirect(`/todos/${todo.id}`);
 });
 
@@ -49,26 +48,65 @@ res.render("todos/detail", { todo, allParts, statusLabel });
 
 router.put("/:id/toggle", async (req, res) => {
   const { id } = req.params;
+
   const todo = await prisma.todo.findUnique({ where: { id } });
   if (!todo) return res.status(404).send("Fant ikke todo.");
-const goingDone = todo.status !== "DONE";
 
-let nextDueAt = null;
-if (goingDone && todo.intervalDays) {
-  nextDueAt = new Date(Date.now() + todo.intervalDays * 24 * 60 * 60 * 1000);
-}
+  const goingDone = todo.status !== "DONE";
 
-await prisma.todo.update({
-  where: { id },
-  data: {
-    status: goingDone ? "DONE" : "TODO",
-    completedAt: goingDone ? new Date() : null,
-    nextDueAt: goingDone ? nextDueAt : todo.nextDueAt, // hvis du angrer DONE->TODO, behold neste forfall
-  },
-});
+  // Ikke-service todo: enkel toggle
+  if (!todo.servicePlanId) {
+    await prisma.todo.update({
+      where: { id },
+      data: {
+        status: goingDone ? "DONE" : "TODO",
+        completedAt: goingDone ? new Date() : null,
+      },
+    });
+    return res.redirect(`/todos/${id}`);
+  }
 
+  // Service-instans: ved DONE -> lag neste instans
+  await prisma.$transaction(async (tx) => {
+    const updated = await tx.todo.update({
+      where: { id },
+      data: {
+        status: goingDone ? "DONE" : "TODO",
+        completedAt: goingDone ? new Date() : null,
+      },
+    });
+
+    if (!goingDone) return; // hvis man angrer, lag ikke ny
+
+    const plan = await tx.servicePlan.findUnique({
+      where: { id: updated.servicePlanId },
+    });
+
+    const nextCycle = (updated.cycleNumber || 1) + 1;
+    const baseDue = updated.dueAt ?? new Date();
+    const nextDue = new Date(baseDue.getTime() + plan.intervalDays * 24 * 60 * 60 * 1000);
+
+    // Sikkerhet mot duplikat
+    const existing = await tx.todo.findFirst({
+      where: { servicePlanId: plan.id, cycleNumber: nextCycle },
+    });
+
+    if (!existing) {
+      await tx.todo.create({
+        data: {
+          title: plan.title,
+          description: plan.description,
+          status: "TODO",
+          servicePlanId: plan.id,
+          dueAt: nextDue,
+          cycleNumber: nextCycle,
+        },
+      });
+    }
+  });
 
   res.redirect(`/todos/${id}`);
 });
+
 
 module.exports = router;

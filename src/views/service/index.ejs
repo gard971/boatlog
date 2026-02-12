@@ -1,8 +1,14 @@
 <%- include("../partials/head", { title: "Service" }) %>
 
 <section class="card">
-  <h1>Service</h1>
-  <p class="muted">Oversikt over oppgaver med intervall og neste forfall.</p>
+  <div class="row">
+    <h1>Service</h1>
+    <a class="button primary" href="/service/new">+ Nytt servicepunkt</a>
+  </div>
+
+  <p class="muted">
+    Vis: <a href="/service?days=30">30</a> · <a href="/service?days=60">60</a> · <a href="/service?days=90">90</a> dager
+  </p>
 </section>
 
 <section class="card">
@@ -13,8 +19,13 @@
     <ul class="list">
       <% overdue.forEach(t => { %>
         <li class="list-item">
-          <a href="/todos/<%= t.id %>"><%= t.title %></a>
-          <span class="muted">· <%= new Date(t.nextDueAt).toLocaleDateString("no-NO") %></span>
+          <div>
+            <a href="/todos/<%= t.id %>"><%= t.title %></a>
+            <span class="muted">
+              · Forfall: <%= new Date(t.dueAt).toLocaleDateString("no-NO") %>
+              <%= t.cycleNumber ? "· #" + t.cycleNumber : "" %>
+            </span>
+          </div>
         </li>
       <% }) %>
     </ul>
@@ -22,15 +33,20 @@
 </section>
 
 <section class="card">
-  <h2>Forfaller innen 30 dager</h2>
+  <h2>Forfaller innen <%= days %> dager</h2>
   <% if (dueSoon.length === 0) { %>
     <p class="muted">Ingen kommende servicepunkter.</p>
   <% } else { %>
     <ul class="list">
       <% dueSoon.forEach(t => { %>
         <li class="list-item">
-          <a href="/todos/<%= t.id %>"><%= t.title %></a>
-          <span class="muted">· <%= new Date(t.nextDueAt).toLocaleDateString("no-NO") %></span>
+          <div>
+            <a href="/todos/<%= t.id %>"><%= t.title %></a>
+            <span class="muted">
+              · Forfall: <%= new Date(t.dueAt).toLocaleDateString("no-NO") %>
+              <%= t.cycleNumber ? "· #" + t.cycleNumber : "" %>
+            </span>
+          </div>
         </li>
       <% }) %>
     </ul>
