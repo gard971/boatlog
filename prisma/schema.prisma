@@ -53,6 +53,7 @@ model Todo {
   issues      IssueTodo[]
   attachments Attachment[]
   parts PartUsage[]
+  notifications ServiceNotification[]
 }
 
 model IssueTodo {
@@ -122,4 +123,15 @@ model ServicePlan {
   updatedAt    DateTime @updatedAt
 
   todos        Todo[]
+}
+model ServiceNotification {
+  id        String   @id @default(cuid())
+  todoId    String
+  kind      String   // "DUE_SOON" | "OVERDUE"
+  sentAt    DateTime @default(now())
+
+  todo Todo @relation(fields: [todoId], references: [id], onDelete: Cascade)
+
+  @@unique([todoId, kind], name: "todoId_kind") // sørger for at vi bare sender én gang per type per oppgave
+  @@index([todoId])
 }

@@ -9,6 +9,7 @@ const todosRouter = require("./routes/todos");
 const attachmentsRouter = require("./routes/attachments");
 const serviceRouter = require("./routes/service");
 const partsRouter = require("./routes/parts");
+const adminRouter = require("./routes/admin");  
 
 
 const app = express();
@@ -32,6 +33,7 @@ app.use("/issues", issuesRouter);
 app.use("/todos", todosRouter);
 app.use("/attachments", attachmentsRouter);
 app.use("/parts", partsRouter);
+app.use("/admin", adminRouter);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
