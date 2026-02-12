@@ -44,9 +44,13 @@ model Todo {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   completedAt DateTime?
+  intervalDays Int?    
+  nextDueAt    DateTime? 
+
 
   issues      IssueTodo[]
   attachments Attachment[]
+  parts PartUsage[]
 }
 
 model IssueTodo {
@@ -77,4 +81,32 @@ model Attachment {
 
   @@index([issueId])
   @@index([todoId])
+}
+model Part {
+  id           String   @id @default(cuid())
+  name         String
+  sku          String?  // artikkelnummer
+  supplier     String?  // Biltema, Maritim, osv
+  priceNok     Int?     // lagre i øre (NOK * 100) for å slippe desimal-krøll
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  usages       PartUsage[]
+}
+
+model PartUsage {
+  id        String   @id @default(cuid())
+  partId    String
+  todoId    String
+  quantity  Int      @default(1)
+  priceNok  Int?     // pris på akkurat denne jobben (overstyrer part.priceNok)
+  createdAt DateTime @default(now())
+
+  part Part @relation(fields: [partId], references: [id], onDelete: Cascade)
+  todo Todo @relation(fields: [todoId], references: [id], onDelete: Cascade)
+
+  @@index([partId])
+  @@index([todoId])
+  @@unique([partId, todoId]) // en part per todo (med quantity)
 }

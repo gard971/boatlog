@@ -37,6 +37,49 @@
     </ul>
   <% } %>
 </section>
+<section class="card">
+  <h2>Deler brukt</h2>
+
+  <% if (todo.parts.length === 0) { %>
+    <p class="muted">Ingen deler registrert på denne oppgaven.</p>
+  <% } else { %>
+    <ul class="list">
+      <% todo.parts.forEach(u => { %>
+        <li class="list-item">
+          <div>
+            <strong><%= u.part.name %></strong>
+            <span class="muted">· x<%= u.quantity %> · <%= u.part.sku || "" %> <%= u.part.supplier ? "· " + u.part.supplier : "" %></span>
+          </div>
+          <form method="post" action="/parts/use/remove">
+            <input type="hidden" name="todoId" value="<%= todo.id %>" />
+            <input type="hidden" name="partId" value="<%= u.part.id %>" />
+            <button class="button danger" type="submit">Fjern</button>
+          </form>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+
+  <hr/>
+
+  <h3>Legg til del</h3>
+  <form method="post" action="/parts/use">
+    <input type="hidden" name="todoId" value="<%= todo.id %>" />
+    <label>Velg del</label>
+    <select name="partId" required>
+      <% allParts.forEach(p => { %>
+        <option value="<%= p.id %>"><%= p.name %> <%= p.sku ? "(" + p.sku + ")" : "" %></option>
+      <% }) %>
+    </select>
+
+    <label>Antall</label>
+    <input name="quantity" type="number" min="1" value="1" />
+
+    <button class="button primary" type="submit">Legg til</button>
+  </form>
+
+  <p class="muted">Mangler du delen? <a href="/parts/new">Registrer ny del</a>.</p>
+</section>
 
 <section class="card">
   <h2>Vedlegg</h2>

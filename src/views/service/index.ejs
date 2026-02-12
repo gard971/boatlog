@@ -1,0 +1,40 @@
+<%- include("../partials/head", { title: "Service" }) %>
+
+<section class="card">
+  <h1>Service</h1>
+  <p class="muted">Oversikt over oppgaver med intervall og neste forfall.</p>
+</section>
+
+<section class="card">
+  <h2>Forfalt</h2>
+  <% if (overdue.length === 0) { %>
+    <p class="muted">Ingen forfalte servicepunkter 🎉</p>
+  <% } else { %>
+    <ul class="list">
+      <% overdue.forEach(t => { %>
+        <li class="list-item">
+          <a href="/todos/<%= t.id %>"><%= t.title %></a>
+          <span class="muted">· <%= new Date(t.nextDueAt).toLocaleDateString("no-NO") %></span>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</section>
+
+<section class="card">
+  <h2>Forfaller innen 30 dager</h2>
+  <% if (dueSoon.length === 0) { %>
+    <p class="muted">Ingen kommende servicepunkter.</p>
+  <% } else { %>
+    <ul class="list">
+      <% dueSoon.forEach(t => { %>
+        <li class="list-item">
+          <a href="/todos/<%= t.id %>"><%= t.title %></a>
+          <span class="muted">· <%= new Date(t.nextDueAt).toLocaleDateString("no-NO") %></span>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</section>
+
+<%- include("../partials/foot") %>

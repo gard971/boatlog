@@ -7,6 +7,12 @@
     <input name="title" required />
 
     <label>Beskrivelse</label>
+    <label>Service-intervall (valgfritt)</label>
+<div class="row">
+  <input name="intervalDays" type="number" min="1" placeholder="Antall dager (f.eks. 365)" />
+</div>
+<p class="muted">Eksempel: 30, 90, 180, 365. Når oppgaven markeres ferdig settes neste forfall automatisk.</p>
+
     <textarea name="description" rows="5"></textarea>
 
     <button class="button primary" type="submit">Opprett</button>

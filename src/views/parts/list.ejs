@@ -1,0 +1,31 @@
+<%- include("../partials/head", { title: "Deler" }) %>
+
+<section class="card">
+  <div class="row">
+    <h1>Deler</h1>
+    <a class="button" href="/parts/new">+ Ny del</a>
+  </div>
+
+  <form method="get" action="/parts" class="row" style="margin-top:10px;">
+    <input name="q" value="<%= q %>" placeholder="Søk (navn, sku, leverandør)" />
+    <button class="button" type="submit">Søk</button>
+  </form>
+
+  <table class="table" style="margin-top:10px;">
+    <thead>
+      <tr><th>Navn</th><th>SKU</th><th>Leverandør</th><th>Pris</th></tr>
+    </thead>
+    <tbody>
+      <% parts.forEach(p => { %>
+        <tr>
+          <td><%= p.name %></td>
+          <td><%= p.sku || "-" %></td>
+          <td><%= p.supplier || "-" %></td>
+          <td><%= p.priceNok != null ? (p.priceNok/100).toFixed(2) + " kr" : "-" %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</section>
+
+<%- include("../partials/foot") %>
