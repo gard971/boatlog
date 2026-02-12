@@ -1,0 +1,25 @@
+<%- include("../partials/head", { title: "Problemer" }) %>
+
+<section class="card">
+  <div class="row">
+    <h1>Problemer</h1>
+    <a class="button" href="/issues/new">+ Nytt problem</a>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr><th>Tittel</th><th>Status</th><th>Opprettet</th></tr>
+    </thead>
+    <tbody>
+      <% issues.forEach(i => { %>
+        <tr>
+          <td><a href="/issues/<%= i.id %>"><%= i.title %></a></td>
+          <td><span class="pill"><%= statusLabel(i.status) %></span></td>
+          <td><%= new Date(i.createdAt).toLocaleString("no-NO") %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</section>
+
+<%- include("../partials/foot") %>

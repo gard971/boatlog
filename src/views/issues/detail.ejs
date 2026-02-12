@@ -1,0 +1,120 @@
+<%- include("../partials/head", { title: "Problem" }) %>
+
+<section class="card">
+  <div class="row">
+    <div>
+      <h1><%= issue.title %></h1>
+      <% if (issue.description) { %>
+        <p class="muted"><%= issue.description %></p>
+      <% } %>
+      <p class="muted">
+        Opprettet: <%= new Date(issue.createdAt).toLocaleString("no-NO") %>
+        <% if (issue.resolvedAt) { %> · Løst: <%= new Date(issue.resolvedAt).toLocaleString("no-NO") %><% } %>
+      </p>
+    </div>
+
+    <form method="post" action="/issues/<%= issue.id %>/status?_method=PUT">
+      <label>Status</label>
+      <select name="status">
+        <option value="OPEN" <%= issue.status==="OPEN" ? "selected" : "" %>>Åpen</option>
+        <option value="INVESTIGATE" <%= issue.status==="INVESTIGATE" ? "selected" : "" %>>Må finne årsak</option>
+        <option value="RESOLVED" <%= issue.status==="RESOLVED" ? "selected" : "" %>>Løst</option>
+      </select>
+      <button class="button" type="submit">Lagre</button>
+    </form>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Knyttede oppgaver</h2>
+
+  <% if (issue.todos.length === 0) { %>
+    <p class="muted">Ingen oppgaver knyttet enda.</p>
+  <% } else { %>
+    <ul class="list">
+      <% issue.todos.forEach(it => { %>
+        <li class="list-item">
+          <div>
+            <a href="/todos/<%= it.todo.id %>"><%= it.todo.title %></a>
+            <span class="muted">· <%= it.todo.status === "DONE" ? "Ferdig" : "Å gjøre" %></span>
+            <% if (it.todo.completedAt) { %>
+              <span class="muted">· Ferdig: <%= new Date(it.todo.completedAt).toLocaleString("no-NO") %></span>
+            <% } %>
+          </div>
+
+          <form method="post" action="/issues/<%= issue.id %>/unlink-todo/<%= it.todo.id %>?_method=DELETE">
+            <button class="button danger" type="submit">Fjern</button>
+          </form>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+
+  <hr/>
+
+  <h3>Legg til eksisterende oppgaver</h3>
+  <form method="post" action="/issues/<%= issue.id %>/link-todos">
+    <label>Velg en eller flere</label>
+    <select name="todoIds" multiple size="6">
+      <% allTodos.forEach(t => { %>
+        <option value="<%= t.id %>"><%= t.title %> (<%= t.status === "DONE" ? "Ferdig" : "Å gjøre" %>)</option>
+      <% }) %>
+    </select>
+    <button class="button primary" type="submit">Knytt oppgaver</button>
+  </form>
+</section>
+
+<section class="card">
+  <h2>Vedlegg</h2>
+
+  <form method="post" action="/attachments/issue/<%= issue.id %>" enctype="multipart/form-data">
+    <input type="file" name="file" required />
+    <button class="button" type="submit">Last opp</button>
+  </form>
+
+  <% if (issue.attachments.length === 0) { %>
+    <p class="muted">Ingen vedlegg enda.</p>
+  <% } else { %>
+    <ul class="list">
+      <% issue.attachments.forEach(a => { %>
+        <li class="attachment">
+  <div class="attachment-preview">
+
+    <% if (a.mimeType.startsWith("image/")) { %>
+      <a href="<%= a.storagePath %>" target="_blank">
+        <img src="<%= a.storagePath %>" class="thumb"/>
+      </a>
+
+    <% } else if (a.mimeType === "application/pdf") { %>
+      <iframe src="<%= a.storagePath %>" class="pdf"></iframe>
+
+    <% } else if (a.mimeType.startsWith("video/")) { %>
+      <video controls class="video">
+        <source src="<%= a.storagePath %>" type="<%= a.mimeType %>">
+      </video>
+
+    <% } else { %>
+      <div class="filebox">
+        📄 <a href="<%= a.storagePath %>" target="_blank"><%= a.originalName %></a>
+      </div>
+    <% } %>
+
+  </div>
+
+  <div class="attachment-meta">
+    <span class="muted">
+      <%= new Date(a.uploadedAt).toLocaleString("no-NO") %>
+    </span>
+
+    <form method="post" action="/attachments/<%= a.id %>?_method=DELETE">
+      <button class="button danger" type="submit">Slett</button>
+    </form>
+  </div>
+</li>
+
+      <% }) %>
+    </ul>
+  <% } %>
+</section>
+
+<%- include("../partials/foot") %>

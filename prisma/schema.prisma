@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum IssueStatus {
+  OPEN
+  INVESTIGATE
+  RESOLVED
+}
+
+enum TodoStatus {
+  TODO
+  DONE
+}
+
+enum AttachmentTargetType {
+  ISSUE
+  TODO
+}
+
+model Issue {
+  id          String        @id @default(cuid())
+  title       String
+  description String?
+  status      IssueStatus   @default(OPEN)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  resolvedAt  DateTime?
+
+  todos       IssueTodo[]
+  attachments Attachment[]
+}
+
+model Todo {
+  id          String        @id @default(cuid())
+  title       String
+  description String?
+  status      TodoStatus    @default(TODO)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  completedAt DateTime?
+
+  issues      IssueTodo[]
+  attachments Attachment[]
+}
+
+model IssueTodo {
+  issueId String
+  todoId  String
+
+  issue   Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  todo    Todo  @relation(fields: [todoId], references: [id], onDelete: Cascade)
+
+  @@id([issueId, todoId])
+}
+
+model Attachment {
+  id          String               @id @default(cuid())
+  targetType  AttachmentTargetType
+  issueId     String?
+  todoId      String?
+
+  originalName String
+  filename     String
+  mimeType     String
+  size         Int
+  storagePath  String
+  uploadedAt   DateTime @default(now())
+
+  issue Issue? @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  todo  Todo?  @relation(fields: [todoId], references: [id], onDelete: Cascade)
+
+  @@index([issueId])
+  @@index([todoId])
+}

@@ -1,0 +1,16 @@
+<%- include("../partials/head", { title: "Ny oppgave" }) %>
+
+<section class="card">
+  <h1>Ny oppgave</h1>
+  <form method="post" action="/todos">
+    <label>Tittel</label>
+    <input name="title" required />
+
+    <label>Beskrivelse</label>
+    <textarea name="description" rows="5"></textarea>
+
+    <button class="button primary" type="submit">Opprett</button>
+  </form>
+</section>
+
+<%- include("../partials/foot") %>

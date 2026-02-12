@@ -1,0 +1,94 @@
+<%- include("../partials/head", { title: "Oppgave" }) %>
+
+<section class="card">
+  <div class="row">
+    <div>
+      <h1><%= todo.title %></h1>
+      <% if (todo.description) { %>
+        <p class="muted"><%= todo.description %></p>
+      <% } %>
+
+      <p class="muted">
+        Opprettet: <%= new Date(todo.createdAt).toLocaleString("no-NO") %>
+        <% if (todo.completedAt) { %> · Ferdig: <%= new Date(todo.completedAt).toLocaleString("no-NO") %><% } %>
+      </p>
+    </div>
+
+    <form method="post" action="/todos/<%= todo.id %>/toggle?_method=PUT">
+      <button class="button <%= todo.status === "DONE" ? "danger" : "primary" %>" type="submit">
+        <%= todo.status === "DONE" ? "Marker som Å gjøre" : "Marker som Ferdig" %>
+      </button>
+    </form>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Knyttet til problemer</h2>
+  <% if (todo.issues.length === 0) { %>
+    <p class="muted">Denne oppgaven er ikke knyttet til et problem enda.</p>
+  <% } else { %>
+    <ul class="list">
+      <% todo.issues.forEach(it => { %>
+        <li class="list-item">
+          <a href="/issues/<%= it.issue.id %>"><%= it.issue.title %></a>
+          <span class="muted">· <%= it.issue.status === "OPEN" ? "Åpen" : it.issue.status === "INVESTIGATE" ? "Må finne årsak" : "Løst" %></span>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</section>
+
+<section class="card">
+  <h2>Vedlegg</h2>
+
+  <form method="post" action="/attachments/todo/<%= todo.id %>" enctype="multipart/form-data">
+    <input type="file" name="file" required />
+    <button class="button" type="submit">Last opp</button>
+  </form>
+
+  <% if (todo.attachments.length === 0) { %>
+    <p class="muted">Ingen vedlegg enda.</p>
+  <% } else { %>
+    <ul class="list">
+      <% todo.attachments.forEach(a => { %>
+        <li class="attachment">
+  <div class="attachment-preview">
+
+    <% if (a.mimeType.startsWith("image/")) { %>
+      <a href="<%= a.storagePath %>" target="_blank">
+        <img src="<%= a.storagePath %>" class="thumb"/>
+      </a>
+
+    <% } else if (a.mimeType === "application/pdf") { %>
+      <iframe src="<%= a.storagePath %>" class="pdf"></iframe>
+
+    <% } else if (a.mimeType.startsWith("video/")) { %>
+      <video controls class="video">
+        <source src="<%= a.storagePath %>" type="<%= a.mimeType %>">
+      </video>
+
+    <% } else { %>
+      <div class="filebox">
+        📄 <a href="<%= a.storagePath %>" target="_blank"><%= a.originalName %></a>
+      </div>
+    <% } %>
+
+  </div>
+
+  <div class="attachment-meta">
+    <span class="muted">
+      <%= new Date(a.uploadedAt).toLocaleString("no-NO") %>
+    </span>
+
+    <form method="post" action="/attachments/<%= a.id %>?_method=DELETE">
+      <button class="button danger" type="submit">Slett</button>
+    </form>
+  </div>
+</li>
+
+      <% }) %>
+    </ul>
+  <% } %>
+</section>
+
+<%- include("../partials/foot") %>

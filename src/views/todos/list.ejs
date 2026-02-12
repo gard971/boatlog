@@ -1,0 +1,27 @@
+<%- include("../partials/head", { title: "Oppgaver" }) %>
+
+<section class="card">
+  <div class="row">
+    <h1>Oppgaver</h1>
+    <a class="button" href="/todos/new">+ Ny oppgave</a>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr><th>Tittel</th><th>Status</th><th>Ferdig</th></tr>
+    </thead>
+    <tbody>
+      <% todos.forEach(t => { %>
+        <tr>
+          <td><a href="/todos/<%= t.id %>"><%= t.title %></a></td>
+          <td><span class="pill"><%= statusLabel(t.status) %></span></td>
+          <td>
+            <%= t.completedAt ? new Date(t.completedAt).toLocaleString("no-NO") : "-" %>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</section>
+
+<%- include("../partials/foot") %>
